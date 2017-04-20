@@ -1,12 +1,9 @@
 /*
   
     LCD-pixel-rogue 0.1.0
-
     A minimal roguelike engine for arduino, using an LCD 16x2 as the display.
     by joey comeau
-
     uses LiquidCrystal library for interacting with the LCD. 
-
 */
 
 // include the library code:
@@ -44,6 +41,12 @@ void setup() {
                   pinMode(joy_SW, INPUT);
 
                   drawPixel(xpos,ypos,0,0);
+
+                  lcd.setCursor(6,0);
+                  lcd.print("lcd.pxl.rg");
+                  lcd.setCursor(6,1);
+                  lcd.print("ver 0.1.0");
+                  
   
               }
 
@@ -183,4 +186,3 @@ void move (String dir){
 drawPixel(xpos,ypos,0,0);
 delay(300);   // Slow down, hero.
 }
-
