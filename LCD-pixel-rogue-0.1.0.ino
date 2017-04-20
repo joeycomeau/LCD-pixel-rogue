@@ -15,29 +15,35 @@
 // initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 
+// SETUP joystick pins
+// replace all the joystick stuff with whatever
+// control method you prefer to use.
+
+const int joy1 = A1;
+const int joy2 = A0;
+const int joy_SW = 20;
+
+int value1 = 0;                  // variable to read the value from the analog pin 0
+int value2 = 0;
+
 // our global x and y co-ordinates, used for locating the pixel in a display 'box'
 // the 'box' is one of the 5x8 pixel character fields on the LCD
-int xpos = 0;
-int ypos = 0;
-
-//  the five horizontal positions a pixel can occupy in the 5x8 box. 
-byte BYTE0 = B10000;
-byte BYTE1 = B01000;
-byte BYTE2 = B00100;
-byte BYTE3 = B00010;
-byte BYTE4 = B00001;
-
-
+int xpos = 2;
+int ypos = 1;
 
 //   our empty horizontal line.
-byte BYTE_EMPTY = B00000;
+byte BYTE_EMPTY = B10001;
 
 // we can create a room using 
 
 
 void setup() {
   // set up the LCD's number of columns and rows:
-lcd.begin(16, 2);  
+                  lcd.begin(16, 2);  
+
+                  pinMode(joy_SW, INPUT);
+
+                  drawPixel(xpos,ypos,0,0);
   
               }
 
@@ -48,21 +54,36 @@ void loop() {
 // this probably does NOT need to use string objects. But for readability here, it does.
 //
 
-move("right");
-move("right");
-move("right");
-move("left");
-move("down");
-move("right");
-move("left");
-move("down");
-move("left");
-move("left");
-move("up");
-move("up");
+readJoystick();
+
+//move("left");
+//move("up");
+//move("up");
 
   
   } // end main loop
+
+
+
+int readJoystick(){
+  value1 = treatValue(analogRead(joy1));  
+  // this small pause is needed between reading
+  // analog pins, otherwise we get the same value twice
+  delay(100);            
+  // reads the value of the variable resistor
+  value2 = treatValue(analogRead(joy2)); 
+  delay(100);
+
+  if (value1 > 54) { move("down"); }
+  if (value1 < 50) { move("up"); }    
+  if (value2 > 54) { move("right"); }
+  if (value2 < 50) { move("left"); }      
+}
+
+
+int treatValue(int data) {
+  return (data * 9 / 1024) + 48;
+ }
 
 
 
@@ -87,7 +108,11 @@ void drawPixel(int x, int y,int FLOORNUM, int ROOMNUM){
 // an array of bytes, each of which is populated by global variable BYTE_EMPTY
 // creating a blank room character.
 byte ROOM[8];
-  for (int i=0; i <= 7; i++){  
+
+    ROOM[0] = B11111;
+    ROOM[7] = B11111;
+    
+  for (int i=1; i <= 6; i++){  
     ROOM[i] = BYTE_EMPTY;
   }
 
@@ -102,11 +127,11 @@ byte ROOM[8];
 // of a pixel AT that y value.
 //
 byte PIXGUY[5];
-PIXGUY[0] = B10000;
-PIXGUY[1] = B01000;
-PIXGUY[2] = B00100;
-PIXGUY[3] = B00010;
-PIXGUY[4] = B00001;
+PIXGUY[0] = B10001;
+PIXGUY[1] = B11001;
+PIXGUY[2] = B10101;
+PIXGUY[3] = B10011;
+PIXGUY[4] = B10001;
   
   
 // Place PIXGUY in correct row in ROOM! 
@@ -121,11 +146,6 @@ ROOM[x] = PIXGUY[y];
 // This'll be overwritten every time. (So we can get around the LCD's
 // 8 custom character limitation.) 
 lcd.createChar(0, ROOM);
-
-// Initialize the lcd and give its dimensions
-// I am not sure if this should be here or in setup().
-// I will try to fix this later.
-lcd.begin(16, 2);
 
 // Set the cursor to the correct "ROOM" and "FLOOR" on the LCD display
 // then draw the custom character we just created.   
@@ -147,13 +167,20 @@ lcd.write(byte(0));
 // 
 
 void move (String dir){
-  if (dir == "left") { ypos--; }
-  if (dir == "right") { ypos++; }
-  if (dir == "up") { xpos--; }
-  if (dir == "down") {xpos++; }
+  if (dir == "left") { 
+        if (ypos>1) { ypos--; } 
+      }
+  if (dir == "right") { 
+        if (ypos<3) { ypos++; } 
+      }
+  if (dir == "up") { 
+        if (xpos>1) { xpos--; } 
+      }
+  if (dir == "down") {  
+        if (xpos<6) { xpos++; }  
+      }
     
 drawPixel(xpos,ypos,0,0);
-delay(500);   // Slow down, hero.
+delay(300);   // Slow down, hero.
 }
-
 
