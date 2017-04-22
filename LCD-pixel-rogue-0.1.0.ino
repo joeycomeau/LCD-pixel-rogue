@@ -17,19 +17,6 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 // replace all the joystick stuff with whatever
 // control method you prefer to use.
 
-int ROOM1[] = {       1,1,1,1,1, 
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,1,1,1,1
-                    };
-                 
-
-
-
 const int joy1 = A1;
 const int joy2 = A0;
 const int joy_SW = 20;
@@ -42,10 +29,19 @@ int value2 = 0;
 int xpos = 2;
 int ypos = 1;
 
-//   our empty horizontal line.
-byte BYTE_EMPTY = B10001;
 
 // we can create a room using 
+
+int ROOM1[] = {       1,1,1,1,1, 
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,1,0,1,1,
+                      1,1,0,0,1,
+                      1,1,1,1,1
+                    };
+                 
 
 
 void setup() {
@@ -58,8 +54,11 @@ void setup() {
 
                   lcd.setCursor(6,0);
                   lcd.print("lcd.pxl.rg");
+
+
                   lcd.setCursor(6,1);
                   lcd.print("ver 0.1.0");
+
 
 //                  ROOM1 = defineRoom(0,0,0,
 
@@ -124,40 +123,35 @@ int treatValue(int data) {
 void drawPixel(int x, int y,int FLOORNUM, int ROOMNUM){
 
 // init ROOM with 8 empty rows
-// an array of bytes, each of which is populated by global variable BYTE_EMPTY
-// creating a blank room character.
 byte ROOM[8];
 
-    ROOM[0] = B11111;
-    ROOM[7] = B11111;
-    
-  for (int i=1; i <= 6; i++){  
-    ROOM[i] = BYTE_EMPTY;
-  }
 
-
-// Place Character in correct column in PIXGUY!
-// this creates an array of bytes in PIXGUY, each of which
-// represents the pixel hero being at a different position
-// horizontally on a row.
-// All 5 posibilities are saved in the array, each indexed by
-// the position they represent, so that PIXGUY can be used
-// with a y value to give the right representation
-// of a pixel AT that y value.
+// Go through the ROOM1 room description array, populating the actual ROOM byte with the binary
+// data for the custom character.
 //
-byte PIXGUY[5];
-PIXGUY[0] = B10001;
-PIXGUY[1] = B11001;
-PIXGUY[2] = B10101;
-PIXGUY[3] = B10011;
-PIXGUY[4] = B10001;
-  
-  
-// Place PIXGUY in correct row in ROOM! 
-// X is the current row that our hero is on. So we replace the current 
-// value for that row in ROOM (which should be BYTE_EMPTY) with a row
-// that shows a pixel at the current Y value!
-ROOM[x] = PIXGUY[y];
+// this needs to be rewritten as a loop to save space and improve readability.
+
+int increment = 0;
+ROOM[0] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[1] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[2] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[3] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[4] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[5] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[6] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[7] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+
+
+// add our hero to the room by adding a shifted bit to the x,y position
+ROOM[xpos] += 1 << (4-ypos);
+
 
 
 // Draw the character to one of the LCD's custom character slots (0).
