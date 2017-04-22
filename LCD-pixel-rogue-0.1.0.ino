@@ -4,6 +4,7 @@
     A minimal roguelike engine for arduino, using an LCD 16x2 as the display.
     by joey comeau
     uses LiquidCrystal library for interacting with the LCD. 
+
 */
 
 // include the library code:
@@ -15,6 +16,19 @@ LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
 // SETUP joystick pins
 // replace all the joystick stuff with whatever
 // control method you prefer to use.
+
+int ROOM1[] = {       1,1,1,1,1, 
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,1,1,1,1
+                    };
+                 
+
+
 
 const int joy1 = A1;
 const int joy2 = A0;
@@ -46,7 +60,9 @@ void setup() {
                   lcd.print("lcd.pxl.rg");
                   lcd.setCursor(6,1);
                   lcd.print("ver 0.1.0");
-                  
+
+//                  ROOM1 = defineRoom(0,0,0,
+
   
               }
 
@@ -171,18 +187,25 @@ lcd.write(byte(0));
 
 void move (String dir){
   if (dir == "left") { 
-        if (ypos>1) { ypos--; } 
+        if (!(collisionDetect(xpos,(ypos-1)))) { ypos--; } 
       }
   if (dir == "right") { 
-        if (ypos<3) { ypos++; } 
+        if (!(collisionDetect(xpos,(ypos+1)))) { ypos++; } 
       }
   if (dir == "up") { 
-        if (xpos>1) { xpos--; } 
+        if (!(collisionDetect((xpos-1),ypos))) { xpos--; } 
       }
   if (dir == "down") {  
-        if (xpos<6) { xpos++; }  
+        if (!(collisionDetect((xpos+1),ypos))) { xpos++; }  
       }
     
-drawPixel(xpos,ypos,0,0);
-delay(300);   // Slow down, hero.
+  drawPixel(xpos,ypos,0,0);
+  delay(300);   // Slow down, hero.
 }
+
+
+int collisionDetect(int xtest,int ytest){
+    return ROOM1[int((xtest*5)+ytest)];
+}
+
+
