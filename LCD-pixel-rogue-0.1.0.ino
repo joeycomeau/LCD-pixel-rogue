@@ -116,28 +116,15 @@ void drawPixel(int x, int y,int FLOORNUM, int ROOMNUM){
 byte ROOM[8];
 
 
-// Go through the ROOM1 room description array, populating the actual ROOM byte with the binary
+// Go through the ROOM1 room description array, using the values for populating the actual ROOM byte with the binary
 // data for the custom character.
 //
-// this needs to be rewritten as a loop to save space and improve readability.
 
-int increment = 0;
-ROOM[0] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[1] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[2] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[3] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[4] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[5] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[6] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
-increment += 5;
-ROOM[7] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+for (int i=0; i<8;i++) {
 
+ROOM[i] = (ROOM1[0+(i*5)] << 4) + (ROOM1[1+(i*5)] << 3) + (ROOM1[2+(i*5)]<<2) + (ROOM1[3+(i*5)]<<1)+(ROOM1[4+(i*5)]);
+
+}
 
 // add our hero to the room by adding a shifted bit to the x,y position
 ROOM[xpos] += 1 << (4-ypos);
