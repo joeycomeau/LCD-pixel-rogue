@@ -27,18 +27,18 @@ int value2 = 0;
 // our global x and y co-ordinates, used for locating the pixel in a display 'box'
 // the 'box' is one of the 5x8 pixel character fields on the LCD
 int xpos = 2;
-int ypos = 1;
+int ypos = 2;
 
 
-// we can create a room using 
+// we can create a room using an int array
 
 int ROOM1[] = {       1,1,1,1,1, 
                       1,0,0,0,1,
                       1,0,0,0,1,
                       1,0,0,0,1,
                       1,0,0,0,1,
-                      1,1,0,1,1,
-                      1,1,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
                       1,1,1,1,1
                     };
                  
@@ -59,24 +59,14 @@ void setup() {
                   lcd.setCursor(6,1);
                   lcd.print("ver 0.1.0");
 
-
-//                  ROOM1 = defineRoom(0,0,0,
-
   
               }
 
 void loop() {
 
-// just a few move commands to move our hero around and back to their starting position
-// demonstrating all four directional commands.
-// this probably does NOT need to use string objects. But for readability here, it does.
-//
 
 readJoystick();
 
-//move("left");
-//move("up");
-//move("up");
 
   
   } // end main loop
@@ -197,7 +187,9 @@ void move (String dir){
   delay(300);   // Slow down, hero.
 }
 
-
+// check the x,y position fed to the function against that
+// coordinate in the defined ROOM, and return the result.
+// 1 for a wall, 0 for empty space.
 int collisionDetect(int xtest,int ytest){
     return ROOM1[int((xtest*5)+ytest)];
 }
