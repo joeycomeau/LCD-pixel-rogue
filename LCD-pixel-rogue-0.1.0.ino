@@ -4,6 +4,7 @@
     A minimal roguelike engine for arduino, using an LCD 16x2 as the display.
     by joey comeau
     uses LiquidCrystal library for interacting with the LCD. 
+
 */
 
 // include the library code:
@@ -26,12 +27,21 @@ int value2 = 0;
 // our global x and y co-ordinates, used for locating the pixel in a display 'box'
 // the 'box' is one of the 5x8 pixel character fields on the LCD
 int xpos = 2;
-int ypos = 1;
+int ypos = 2;
 
-//   our empty horizontal line.
-byte BYTE_EMPTY = B10001;
 
-// we can create a room using 
+// we can create a room using an int array
+
+int ROOM1[] = {       1,1,1,1,1, 
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,1,1,1,1
+                    };
+                 
 
 
 void setup() {
@@ -44,24 +54,19 @@ void setup() {
 
                   lcd.setCursor(6,0);
                   lcd.print("lcd.pxl.rg");
+
+
                   lcd.setCursor(6,1);
                   lcd.print("ver 0.1.0");
-                  
+
   
               }
 
 void loop() {
 
-// just a few move commands to move our hero around and back to their starting position
-// demonstrating all four directional commands.
-// this probably does NOT need to use string objects. But for readability here, it does.
-//
 
 readJoystick();
 
-//move("left");
-//move("up");
-//move("up");
 
   
   } // end main loop
@@ -108,40 +113,35 @@ int treatValue(int data) {
 void drawPixel(int x, int y,int FLOORNUM, int ROOMNUM){
 
 // init ROOM with 8 empty rows
-// an array of bytes, each of which is populated by global variable BYTE_EMPTY
-// creating a blank room character.
 byte ROOM[8];
 
-    ROOM[0] = B11111;
-    ROOM[7] = B11111;
-    
-  for (int i=1; i <= 6; i++){  
-    ROOM[i] = BYTE_EMPTY;
-  }
 
-
-// Place Character in correct column in PIXGUY!
-// this creates an array of bytes in PIXGUY, each of which
-// represents the pixel hero being at a different position
-// horizontally on a row.
-// All 5 posibilities are saved in the array, each indexed by
-// the position they represent, so that PIXGUY can be used
-// with a y value to give the right representation
-// of a pixel AT that y value.
+// Go through the ROOM1 room description array, populating the actual ROOM byte with the binary
+// data for the custom character.
 //
-byte PIXGUY[5];
-PIXGUY[0] = B10001;
-PIXGUY[1] = B11001;
-PIXGUY[2] = B10101;
-PIXGUY[3] = B10011;
-PIXGUY[4] = B10001;
-  
-  
-// Place PIXGUY in correct row in ROOM! 
-// X is the current row that our hero is on. So we replace the current 
-// value for that row in ROOM (which should be BYTE_EMPTY) with a row
-// that shows a pixel at the current Y value!
-ROOM[x] = PIXGUY[y];
+// this needs to be rewritten as a loop to save space and improve readability.
+
+int increment = 0;
+ROOM[0] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[1] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[2] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[3] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[4] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[5] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[6] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+increment += 5;
+ROOM[7] = (ROOM1[0+increment] << 4) + (ROOM1[1+increment] << 3) + (ROOM1[2+increment]<<2) + (ROOM1[3+increment]<<1)+(ROOM1[4+increment]);
+
+
+// add our hero to the room by adding a shifted bit to the x,y position
+ROOM[xpos] += 1 << (4-ypos);
+
 
 
 // Draw the character to one of the LCD's custom character slots (0).
@@ -171,18 +171,27 @@ lcd.write(byte(0));
 
 void move (String dir){
   if (dir == "left") { 
-        if (ypos>1) { ypos--; } 
+        if (!(collisionDetect(xpos,(ypos-1)))) { ypos--; } 
       }
   if (dir == "right") { 
-        if (ypos<3) { ypos++; } 
+        if (!(collisionDetect(xpos,(ypos+1)))) { ypos++; } 
       }
   if (dir == "up") { 
-        if (xpos>1) { xpos--; } 
+        if (!(collisionDetect((xpos-1),ypos))) { xpos--; } 
       }
   if (dir == "down") {  
-        if (xpos<6) { xpos++; }  
+        if (!(collisionDetect((xpos+1),ypos))) { xpos++; }  
       }
     
-drawPixel(xpos,ypos,0,0);
-delay(300);   // Slow down, hero.
+  drawPixel(xpos,ypos,0,0);
+  delay(300);   // Slow down, hero.
 }
+
+// check the x,y position fed to the function against that
+// coordinate in the defined ROOM, and return the result.
+// 1 for a wall, 0 for empty space.
+int collisionDetect(int xtest,int ytest){
+    return ROOM1[int((xtest*5)+ytest)];
+}
+
+
