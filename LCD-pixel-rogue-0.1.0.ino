@@ -206,6 +206,11 @@ lcd.write(byte(ROOMS_2.ID));
 
 void move (String dir){
   if (dir == "left") { 
+          if (ypos == 0) { 
+           roompos -=1;
+           ypos=5;
+        }
+        
         if (!(collisionDetect(xpos,(ypos-1)))) { ypos--; } 
       }
   if (dir == "right") { 
