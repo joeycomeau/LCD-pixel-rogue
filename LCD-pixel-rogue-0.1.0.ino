@@ -4,7 +4,6 @@
     A minimal roguelike engine for arduino, using an LCD 16x2 as the display.
     by joey comeau
     uses LiquidCrystal library for interacting with the LCD. 
-
 */
 
 // include the library code:
@@ -28,30 +27,70 @@ int value2 = 0;
 // the 'box' is one of the 5x8 pixel character fields on the LCD
 int xpos = 2;
 int ypos = 2;
+int roompos = 0;
 
 
-// we can create a room using an int array
+// we can create a room description using an int array.
+// each room has an ID number which will also be used for the CustomCharID on the LCD
+// limiting us to 8 rooms onscreen at a time. 
 
-int ROOM1[] = {       1,1,1,1,1, 
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,1,1,1,1
-                    };
-                 
+struct aRoom {
+  int ID;
+  int desc[40];
+} aRoom;
 
+struct aRoom ROOMS_1;
+struct aRoom ROOMS_2;
+    
+int ROOM1[40] = {     1,1,1,1,1, 
+                      1,0,0,0,1,
+                      1,0,0,0,0,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,1,1,1,1,
+                    };                       
+
+int ROOM2[40] = {     1,1,1,1,1, 
+                      1,0,0,0,1,
+                      0,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,1,0,0,1,
+                      0,1,0,0,1,
+                      0,1,1,1,1,
+                    }; 
 
 void setup() {
+
+
+                    
+// ROOM
+
+
+      ROOMS_1.ID = 0;
+      for (int i=0;i<40;i++) {
+        ROOMS_1.desc[i]=ROOM1[i];
+      }
+
+
+      ROOMS_2.ID = 1;
+      for (int i=0;i<40;i++) {
+        ROOMS_2.desc[i]=ROOM2[i];
+      }
+
+
+
+  
   // set up the LCD's number of columns and rows:
                   lcd.begin(16, 2);  
 
                   pinMode(joy_SW, INPUT);
 
-                  drawPixel(xpos,ypos,0,0);
-
+                  drawPixel();
+           
+                  
                   lcd.setCursor(6,0);
                   lcd.print("lcd.pxl.rg");
 
@@ -110,11 +149,11 @@ int treatValue(int data) {
 // 
 
 
-void drawPixel(int x, int y,int FLOORNUM, int ROOMNUM){
+void drawPixel(){
 
 // init ROOM with 8 empty rows
-byte ROOM[8];
-
+byte ROOM_DRAW1[8];
+byte ROOM_DRAW2[8];
 
 // Go through the ROOM1 room description array, using the values for populating the actual ROOM byte with the binary
 // data for the custom character.
@@ -122,12 +161,19 @@ byte ROOM[8];
 
 for (int i=0; i<8;i++) {
 
-ROOM[i] = (ROOM1[0+(i*5)] << 4) + (ROOM1[1+(i*5)] << 3) + (ROOM1[2+(i*5)]<<2) + (ROOM1[3+(i*5)]<<1)+(ROOM1[4+(i*5)]);
+ROOM_DRAW1[i] = (ROOMS_1.desc[0+(i*5)] << 4) + (ROOMS_1.desc[1+(i*5)] << 3) + (ROOMS_1.desc[2+(i*5)]<<2) + (ROOMS_1.desc[3+(i*5)]<<1)+(ROOMS_1.desc[4+(i*5)]);
+ROOM_DRAW2[i] = (ROOMS_2.desc[0+(i*5)] << 4) + (ROOMS_2.desc[1+(i*5)] << 3) + (ROOMS_2.desc[2+(i*5)]<<2) + (ROOMS_2.desc[3+(i*5)]<<1)+(ROOMS_2.desc[4+(i*5)]);
 
 }
 
 // add our hero to the room by adding a shifted bit to the x,y position
-ROOM[xpos] += 1 << (4-ypos);
+if (roompos == 0) {
+ROOM_DRAW1[xpos] += 1 << (4-ypos);
+}
+
+if (roompos == 1) {
+ROOM_DRAW2[xpos] += 1 << (4-ypos);
+}
 
 
 
@@ -135,12 +181,14 @@ ROOM[xpos] += 1 << (4-ypos);
 // 
 // This'll be overwritten every time. (So we can get around the LCD's
 // 8 custom character limitation.) 
-lcd.createChar(0, ROOM);
-
+lcd.createChar(ROOMS_1.ID, ROOM_DRAW1);
+lcd.createChar(ROOMS_2.ID, ROOM_DRAW2);
 // Set the cursor to the correct "ROOM" and "FLOOR" on the LCD display
 // then draw the custom character we just created.   
-lcd.setCursor(ROOMNUM, FLOORNUM);
-lcd.write(byte(0));
+lcd.setCursor(ROOMS_1.ID,0);
+lcd.write(byte(ROOMS_1.ID));
+lcd.setCursor(ROOMS_2.ID,0);
+lcd.write(byte(ROOMS_2.ID));
   
  } // end drawPixel
 
@@ -161,6 +209,11 @@ void move (String dir){
         if (!(collisionDetect(xpos,(ypos-1)))) { ypos--; } 
       }
   if (dir == "right") { 
+        if (ypos == 4) { 
+           roompos +=1;
+           ypos=-1;
+        }
+        
         if (!(collisionDetect(xpos,(ypos+1)))) { ypos++; } 
       }
   if (dir == "up") { 
@@ -170,7 +223,7 @@ void move (String dir){
         if (!(collisionDetect((xpos+1),ypos))) { xpos++; }  
       }
     
-  drawPixel(xpos,ypos,0,0);
+  drawPixel();
   delay(300);   // Slow down, hero.
 }
 
@@ -178,7 +231,13 @@ void move (String dir){
 // coordinate in the defined ROOM, and return the result.
 // 1 for a wall, 0 for empty space.
 int collisionDetect(int xtest,int ytest){
-    return ROOM1[int((xtest*5)+ytest)];
+
+    if (roompos == 0) {
+      return ROOM1[int((xtest*5)+ytest)];
+    }
+
+    if (roompos == 1) {
+      return ROOM2[int((xtest*5)+ytest)];
+    }
+
 }
-
-
