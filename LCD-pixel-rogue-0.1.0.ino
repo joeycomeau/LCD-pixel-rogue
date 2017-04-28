@@ -41,14 +41,16 @@ struct aRoom {
 
 struct aRoom ROOMS_1;
 struct aRoom ROOMS_2;
-    
+struct aRoom ROOMS_3;
+
+  
 int ROOM1[40] = {     1,1,1,1,1, 
                       1,0,0,0,1,
                       1,0,0,0,0,
                       1,0,0,0,1,
                       1,0,0,0,1,
-                      1,0,0,0,1,
-                      1,0,0,0,1,
+                      1,0,0,1,1,
+                      1,0,0,0,0,
                       1,1,1,1,1,
                     };                       
 
@@ -57,10 +59,22 @@ int ROOM2[40] = {     1,1,1,1,1,
                       0,0,0,0,1,
                       1,0,0,0,1,
                       1,0,0,0,1,
-                      1,1,0,0,1,
-                      0,1,0,0,1,
-                      0,1,1,1,1,
+                      1,1,1,1,1,
+                      0,0,0,0,0,
+                      1,1,1,1,1,
                     }; 
+
+
+int ROOM3[40] = {     1,1,1,1,1, 
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,0,0,0,1,
+                      1,1,0,0,1,
+                      0,0,0,0,1,
+                      1,1,1,1,1,
+                    }; 
+
 
 void setup() {
 
@@ -80,7 +94,10 @@ void setup() {
         ROOMS_2.desc[i]=ROOM2[i];
       }
 
-
+      ROOMS_3.ID = 2;
+      for (int i=0;i<40;i++) {
+        ROOMS_3.desc[i]=ROOM3[i];
+      }
 
   
   // set up the LCD's number of columns and rows:
@@ -154,6 +171,8 @@ void drawPixel(){
 // init ROOM with 8 empty rows
 byte ROOM_DRAW1[8];
 byte ROOM_DRAW2[8];
+byte ROOM_DRAW3[8];
+
 
 // Go through the ROOM1 room description array, using the values for populating the actual ROOM byte with the binary
 // data for the custom character.
@@ -163,6 +182,7 @@ for (int i=0; i<8;i++) {
 
 ROOM_DRAW1[i] = (ROOMS_1.desc[0+(i*5)] << 4) + (ROOMS_1.desc[1+(i*5)] << 3) + (ROOMS_1.desc[2+(i*5)]<<2) + (ROOMS_1.desc[3+(i*5)]<<1)+(ROOMS_1.desc[4+(i*5)]);
 ROOM_DRAW2[i] = (ROOMS_2.desc[0+(i*5)] << 4) + (ROOMS_2.desc[1+(i*5)] << 3) + (ROOMS_2.desc[2+(i*5)]<<2) + (ROOMS_2.desc[3+(i*5)]<<1)+(ROOMS_2.desc[4+(i*5)]);
+ROOM_DRAW3[i] = (ROOMS_3.desc[0+(i*5)] << 4) + (ROOMS_3.desc[1+(i*5)] << 3) + (ROOMS_3.desc[2+(i*5)]<<2) + (ROOMS_3.desc[3+(i*5)]<<1)+(ROOMS_3.desc[4+(i*5)]);
 
 }
 
@@ -175,7 +195,9 @@ if (roompos == 1) {
 ROOM_DRAW2[xpos] += 1 << (4-ypos);
 }
 
-
+if (roompos == 2) {
+ROOM_DRAW3[xpos] += 1 << (4-ypos);
+}
 
 // Draw the character to one of the LCD's custom character slots (0).
 // 
@@ -183,12 +205,15 @@ ROOM_DRAW2[xpos] += 1 << (4-ypos);
 // 8 custom character limitation.) 
 lcd.createChar(ROOMS_1.ID, ROOM_DRAW1);
 lcd.createChar(ROOMS_2.ID, ROOM_DRAW2);
+lcd.createChar(ROOMS_3.ID, ROOM_DRAW3);
 // Set the cursor to the correct "ROOM" and "FLOOR" on the LCD display
 // then draw the custom character we just created.   
 lcd.setCursor(ROOMS_1.ID,0);
 lcd.write(byte(ROOMS_1.ID));
 lcd.setCursor(ROOMS_2.ID,0);
 lcd.write(byte(ROOMS_2.ID));
+lcd.setCursor(ROOMS_3.ID,0);
+lcd.write(byte(ROOMS_3.ID));
   
  } // end drawPixel
 
@@ -243,6 +268,10 @@ int collisionDetect(int xtest,int ytest){
 
     if (roompos == 1) {
       return ROOM2[int((xtest*5)+ytest)];
+    }
+
+    if (roompos == 2) {
+      return ROOM3[int((xtest*5)+ytest)];
     }
 
 }
